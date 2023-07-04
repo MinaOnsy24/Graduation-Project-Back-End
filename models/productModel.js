@@ -36,6 +36,10 @@ const ProductSchema = new mongoose.Schema({
   priceAfterDiscount: {
     type: Number
   },
+  imageCover:{
+    type:String,
+    required: true
+  },
   images: [String],
   category:{
     type: mongoose.Schema.ObjectId,
@@ -56,5 +60,35 @@ const ProductSchema = new mongoose.Schema({
   timestamps: true
 }
 )
+// mongoose query middelware
+ProductSchema.pre(/^find/,function(next){
+  this.populate({
+    path: 'category',
+    select: 'name-_id'
+  })
+  next()
+})
+/// mongoose middleware
+const setImageUrl = (doc) =>{
+  if(doc.imageCover){
+    const imageUrl = `${process.env.BASE_URL}/products/${doc.imageCover}`
+    doc.imageCover = imageUrl
+  }
+  if(doc.images){
+    const imagesList = []
+    doc.images.forEach((image) =>{
+      const imageUrl = `${process.env.BASE_URL}/products/${doc.imageCover}`
+      imagesList.push(imageUrl)
+    })
+    doc.images = imagesList
+  }
+} 
+ProductSchema.post('init', (doc) =>{
+  setImageUrl(doc)
+})
+
+ProductSchema.post('save', (doc) =>{  // create
+  setImageUrl(doc)
+})
 const ProductModel = mongoose.model('Product',ProductSchema)
 module.exports = ProductModel

@@ -41,13 +41,15 @@ exports.createProductValidator = [
     .isNumeric()
     .withMessage('Product price must be number')
     .isFloat()
-    .custom((value, {req}) =>{
-      if(req.body.price <= value){
-        throw new Error('priceAfterDiscount must be lower than price ')
-      }
-      return true;
-    }),
-
+    // .custom((value, {req}) =>{
+    //   if(req.body.price <= value){
+    //     throw new Error('priceAfterDiscount must be lower than price ')
+    //   }
+    //   return true;
+    // }),
+  ,
+  
+    
   check('images')
     .optional()
     .isArray()

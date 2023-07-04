@@ -1,8 +1,53 @@
 const slugify = require('slugify')
 const asyncHandler = require('express-async-handler')
+const multer = require('multer')
+const sharp = require('sharp')
+const { v4: uuidv4 } = require('uuid')
 const ApiError = require('../utils/apiError')
-
+const {uploadMixOfImages} = require('../middlewares/uploadImageMiddleware')
 const ProductModel = require('../models/productModel')
+
+exports.uploadProductImage = uploadMixOfImages([
+    {
+      name: 'imageCover',
+      maxCount: 1
+    },
+    {
+      name: 'images',
+      maxCount:50
+    }
+  ])
+
+    exports.resizeProductImages = asyncHandler(async(req,res,next) =>{
+      console.log(req.files);
+      if(req.files.imageCover){
+        const imageCoverFilename = `product-${uuidv4()}-${Date.now()}.jpeg`
+        await sharp(req.files.imageCover[0].buffer)
+      // .resize(600, 600)
+        .toFormat('jpeg')
+        .jpeg({quality: 95})
+        .toFile(`uploads/products/${imageCoverFilename}`);
+
+      req.body.imageCover = imageCoverFilename  // save image on DB
+      }
+
+      if(req.files.images){
+        req.body.images = []
+        await Promise.all(
+          req.files.images.map(async(img,index) =>{
+            const imagename = `product-${uuidv4()}-${Date.now()}-${index + 1}.jpeg`
+            await sharp(img.buffer)
+          // .resize(600, 600)
+            .toFormat('jpeg')
+            .jpeg({quality: 95})
+            .toFile(`uploads/products/${imagename}`);
+  
+          req.body.images.push(imagename)
+          })
+        )
+        next()
+      }
+    })
 
 // get all products - router: GET /api/product - public
 exports.getProducts = asyncHandler(async (req,res) =>{
