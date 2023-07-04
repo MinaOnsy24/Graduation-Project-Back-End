@@ -1,3 +1,5 @@
+const path = require('path')
+
 const express = require('express')
 const morgan = require('morgan')
 const databaseConnection = require('./config/connectToDB')
@@ -12,6 +14,7 @@ const app = express()
 
 // Middelware
 app.use(express.json())
+app.use(express.static(path.join(__dirname,'uploads')))
 // if( process.env.NODE_ENV === 'development'){
 //   app.use(morgan('dev'))
 //   console.log(`mode: ${process.env.NODE_ENV}`)

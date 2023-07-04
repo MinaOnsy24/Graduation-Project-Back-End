@@ -24,6 +24,20 @@ const CategorySchema = new mongoose.Schema({
 }
 )
 
+/// mongoose middleware
+const setImageUrl = (doc) =>{
+  if(doc.image){
+    const imageUrl = `${process.env.BASE_URL}/categories/${doc.image}`
+    doc.image = imageUrl
+  }
+} 
+CategorySchema.post('init', (doc) =>{
+  setImageUrl(doc)
+})
+
+CategorySchema.post('save', (doc) =>{  // create
+  setImageUrl(doc)
+})
 // category model
 const CategoryModel = mongoose.model('Category',CategorySchema)
 

@@ -1,12 +1,12 @@
 const fs = require('fs')
 const dotenv = require('dotenv')
 const ProductModel = require('../../models/productModel')
-const connectToDB = require('../../config/connectToDB')
+const databaseConnection = require('../../config/connectToDB')
 
 dotenv.config()
 
 // connec to DB
-connectToDB()
+databaseConnection()
 // read data
 const products = JSON.parse(fs.readFileSync('./products.json'))
 // insert data
