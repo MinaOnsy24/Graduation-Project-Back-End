@@ -4,6 +4,7 @@ const databaseConnection = require('./config/connectToDB')
 require('dotenv').config()
 const ApiError = require('./utils/apiError')
 const globalError = require('./middlewares/errorMideleware')
+// const userRoute = require('./routes/userRoute')
 
 // connec to DB
 databaseConnection()
@@ -20,6 +21,7 @@ app.use(express.json())
 //routes
 app.use('/api/category',require('./routes/categoryRoute'))
 app.use('/api/products',require('./routes/productRoute'))
+app.use('/api/users', require('./routes/userRoute'))
 
 app.all('*' , (req,res,next) =>{
   next(new ApiError(`can not find this route: ${req.originalUrl}`,400))
