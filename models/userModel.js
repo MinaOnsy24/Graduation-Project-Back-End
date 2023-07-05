@@ -4,7 +4,7 @@ const userSchema = new mongoose.Schema({
     name:{
         type: String,
         trim: true,
-        required: [true, 'name required'],
+        required: [true],
     },
     slug: {
         type: String,
@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema({
     },
     email:{
         type: String,
-        required: [true, 'email required'],
+        required: [true],
         unique: true,
         lowercase: true,
     },
@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
     password:{
         type: String,
         required: [true, 'password required'],
-        minlength: [6, 'short password']
+        minlength: [8, 'short password']
     },
     role:{
         type: String,
