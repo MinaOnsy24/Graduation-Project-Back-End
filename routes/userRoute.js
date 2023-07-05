@@ -8,7 +8,6 @@ require('../controllers/userController');
 const { getUserValidator,createUserValidator,updateUserValidator,deleteUserValidator } = 
 require('../utils/validators/userValidator')
 
-      
 const router = express.Router()
 router.route('/')
 .get(getUsers)

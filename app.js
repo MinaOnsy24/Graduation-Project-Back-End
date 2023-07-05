@@ -1,5 +1,4 @@
 const path = require('path')
-
 const express = require('express')
 const morgan = require('morgan')
 const databaseConnection = require('./config/connectToDB')
@@ -24,7 +23,7 @@ app.use(express.static(path.join(__dirname,'uploads')))
 //routes
 app.use('/api/category',require('./routes/categoryRoute'))
 app.use('/api/products',require('./routes/productRoute'))
-app.use('/api/users', require('./routes/userRoute'))
+app.use('/api/users', require('./routes/user2Route'))
 
 app.all('*' , (req,res,next) =>{
   next(new ApiError(`can not find this route: ${req.originalUrl}`,400))
