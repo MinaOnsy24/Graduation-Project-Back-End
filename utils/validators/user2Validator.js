@@ -12,9 +12,9 @@ exports.getUserValidator = [
 exports.createUserValidator = [
     check("name")
         .notEmpty()
-        .withMessage("Brand required")
+        .withMessage("name required")
         .isLength({ min: 3 })
-        .withMessage("Too short Brand name")
+        .withMessage("Too short user name")
         .custom((val, { req }) => {
             req.body.slug = slugify(val);
             return true;
