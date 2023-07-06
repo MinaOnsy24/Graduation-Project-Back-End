@@ -42,4 +42,12 @@ exports.protect = asyncHandler(async (req, res, next) => {
     if (!token) {
         return next(new ApiError("you are not login please login"), 401);
     }
+
+    const decode=jwt.verify(token,process.env.jwt_Key);
+    console.log(decode);
+
+    const currentUser=await User.findById(decode.userId);
+    if(!currentUser){
+        return next(new ApiError('invaild user data please try ',401))
+    }
 });
