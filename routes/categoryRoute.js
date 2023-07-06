@@ -1,24 +1,44 @@
-const express = require('express')
+const express = require("express");
 
-
-const { getCategories,getCategory,createCategory,updateCategory,deleteCategory, uploadCategoryImage, resizeImage } = 
-require('../controllers/categoryController')
-const { getCategoryValidator,createCategoryValidator,updateCategoryValidator,deleteCategoryValidator } = 
-require('../utils/validators/categoryValidator')
-
-
-const router = express.Router()
-router.route('/')
-.get(getCategories)
-.post(uploadCategoryImage,
+const {
+    getCategories,
+    getCategory,
+    createCategory,
+    updateCategory,
+    deleteCategory,
+    uploadCategoryImage,
     resizeImage,
+} = require("../controllers/categoryController");
+const {
+    getCategoryValidator,
     createCategoryValidator,
-    createCategory)
+    updateCategoryValidator,
+    deleteCategoryValidator,
+} = require("../utils/validators/categoryValidator");
 
-router.route("/:id")
-.get( getCategoryValidator,getCategory)
-.put(uploadCategoryImage,resizeImage,updateCategoryValidator,updateCategory)
-.delete(deleteCategoryValidator,deleteCategory)
+const AuthController=require('../controllers/authUserController')
 
+const router = express.Router();
+router
+    .route("/")
+    .get(getCategories)
+    .post(
+        AuthController.protect,
+        uploadCategoryImage,
+        resizeImage,
+        createCategoryValidator,
+        createCategory
+    );
 
-module.exports = router
+router
+    .route("/:id")
+    .get(getCategoryValidator, getCategory)
+    .put(
+        uploadCategoryImage,
+        resizeImage,
+        updateCategoryValidator,
+        updateCategory
+    )
+    .delete(deleteCategoryValidator, deleteCategory);
+
+module.exports = router;
