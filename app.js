@@ -27,6 +27,7 @@ app.use('/api/users', require('./routes/user2Route'))
 app.use('/api/auth', require('./routes/authRoute'))
 
 
+
 app.all('*' , (req,res,next) =>{
   next(new ApiError(`can not find this route: ${req.originalUrl}`,400))
 })

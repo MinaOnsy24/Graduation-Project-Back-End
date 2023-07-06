@@ -47,5 +47,20 @@ exports.signValidator = [
         validatorMiddleware,
 ];
 
+exports.loginValidator=[
+    check("email")
+    .notEmpty()
+    .withMessage("email is required")
+    .isEmail()
+    .withMessage("invaild email"),
+
+check("password")
+    .notEmpty()
+    .withMessage("password is required")
+    .isLength({ min: 8 })
+    .withMessage("Password must be at least 8 character"),
+    validatorMiddleware
+]
+
 
 
