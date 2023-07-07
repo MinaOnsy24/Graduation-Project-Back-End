@@ -32,15 +32,13 @@ const ProductSchema = new mongoose.Schema({
     required: true,
     trim: true,
     max: [10000]
-  },
-  priceAfterDiscount: {
+  },    
+  discount: {
     type: Number
   },
   imageCover:{
     type:String,
-    required: true
   },
-  images: [String],
   category:{
     type: mongoose.Schema.ObjectId,
     ref: 'Category',
@@ -54,6 +52,9 @@ const ProductSchema = new mongoose.Schema({
   ratingQuntity: {
     type: Number,
     default: 0
+  },
+  stock:{
+    type: Number
   }
 }
 ,{

@@ -1,62 +1,47 @@
 const slugify = require('slugify')
 const asyncHandler = require('express-async-handler')
-const multer = require('multer')
+// const multer = require('multer')
 const sharp = require('sharp')
 const { v4: uuidv4 } = require('uuid')
 const ApiError = require('../utils/apiError')
-const {uploadMixOfImages} = require('../middlewares/uploadImageMiddleware')
+const ApiFeatures = require('../utils/apiFeatures')
 const ProductModel = require('../models/productModel')
+const {uploadSingleImage} = require('../middlewares/uploadImageMiddleware')
+// const { query } = require('express')
 
-exports.uploadProductImage = uploadMixOfImages([
-    {
-      name: 'imageCover',
-      maxCount: 1
-    },
-    {
-      name: 'images',
-      maxCount:50
-    }
-  ])
 
-    exports.resizeProductImages = asyncHandler(async(req,res,next) =>{
-      console.log(req.files);
-      if(req.files.imageCover){
-        const imageCoverFilename = `product-${uuidv4()}-${Date.now()}.jpeg`
-        await sharp(req.files.imageCover[0].buffer)
+/// uload single image
+exports.uploadProductImage = uploadSingleImage("imageCover")
+
+// image processing
+exports.resizeImage = asyncHandler(async (req,res,next) =>{
+  const filename = `product-${uuidv4()}-${Date.now()}.jpeg`
+    await sharp(req.file.buffer)
       // .resize(600, 600)
-        .toFormat('jpeg')
-        .jpeg({quality: 95})
-        .toFile(`uploads/products/${imageCoverFilename}`);
+      .toFormat('jpeg')
+      .jpeg({quality: 95})
+      .toFile(`uploads/products/${filename}`);
 
-      req.body.imageCover = imageCoverFilename  // save image on DB
-      }
-
-      if(req.files.images){
-        req.body.images = []
-        await Promise.all(
-          req.files.images.map(async(img,index) =>{
-            const imagename = `product-${uuidv4()}-${Date.now()}-${index + 1}.jpeg`
-            await sharp(img.buffer)
-          // .resize(600, 600)
-            .toFormat('jpeg')
-            .jpeg({quality: 95})
-            .toFile(`uploads/products/${imagename}`);
-  
-          req.body.images.push(imagename)
-          })
-        )
-        next()
-      }
-    })
+      req.body.imageCover = filename  // save image on DB
+  next();
+})
 
 // get all products - router: GET /api/product - public
 exports.getProducts = asyncHandler(async (req,res) =>{
-  const page = req.query.page * 1 || 1
-  const limit = req.query.limit * 1 || 4
-  const skip = (page - 1) * limit
-  const products = await ProductModel.find({}).skip(skip).limit(limit) //5
-  .populate({path: 'category', select: 'name -_id'})
-  res.status(200).json({results: products.length, data:products})
+  // build query
+  const documentsCounts = await ProductModel.countDocuments()
+  const apiFeatures = new ApiFeatures(ProductModel.find(), req.query) 
+  .paginate(documentsCounts)
+  .filter()
+  .search('Products')
+  .limitFields()
+  .sort()
+
+  // execute query
+  const {mongooseQuery,paginationResult} = apiFeatures
+  const products = await mongooseQuery
+
+  res.status(200).json({results: products.length, paginationResult,data:products})
 })
 
 // get single product - router: GET /api/product/:id - public

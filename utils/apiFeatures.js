@@ -1,3 +1,5 @@
+const ProductModel = require("../models/productModel");
+
 class ApiFeatures {
     constructor(mongooseQuery, queryString) {
         this.mongooseQuery = mongooseQuery;
@@ -6,7 +8,7 @@ class ApiFeatures {
 
     filter() {
         const queryStringObj = { ...this.queryString };
-        const excludesFields = ['page', 'sort', 'limit', 'fields'];
+        const excludesFields = ['page', 'sort', 'limit', 'fields','keyword'];
         excludesFields.forEach((field) => delete queryStringObj[field]);
         // Apply filtration using [gte, gt, lte, lt]
         let queryStr = JSON.stringify(queryStringObj);
@@ -40,10 +42,10 @@ class ApiFeatures {
     search(modelName) {
         if (this.queryString.keyword) {
             let query = {};
-            if (modelName === 'Products') {
+            if (modelName == 'Products') {
                 query.$or = [
                     { title: { $regex: this.queryString.keyword, $options: 'i' } },
-                    { description: { $regex: this.queryString.keyword, $options: 'i' } },
+                    { describtion: { $regex: this.queryString.keyword, $options: 'i' } },
                 ];
             } else {
                 query = { name: { $regex: this.queryString.keyword, $options: 'i' } };
