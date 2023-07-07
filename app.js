@@ -22,7 +22,7 @@ app.use(express.static(path.join(__dirname,'uploads')))
 
 //routes
 app.use('/api/category',require('./routes/categoryRoute'))
-app.use('/api/products',require('./routes/productRoute'))
+// app.use('/api/products',require('./routes/productRoute'))
 app.use('/api/users', require('./routes/user2Route'))
 app.use('/api/auth', require('./routes/authRoute'))
 

@@ -8,9 +8,11 @@ const User = require("../models/userModel2");
 const sendEmail = require("../utils/sendEmail");
 const { log } = require("console");
 
-// Singup
+// @desc    Signup
+// @route   GET /api/auth/signup
+// @access  Public
 exports.signup = asyncHandler(async (req, res, next) => {
-    // create
+    // 1- Create user
     const user = await User.create({
         name: req.body.name,
         email: req.body.email,
@@ -24,7 +26,9 @@ exports.signup = asyncHandler(async (req, res, next) => {
     res.status(201).json({ data: user, token });
 });
 
-//login
+// @desc    Login
+// @route   GET /api/auth/login
+// @access  Public
 exports.login = asyncHandler(async (req, res, next) => {
     // check user exist , password ic correct
     const user = await User.findOne({ email: req.body.email });
@@ -37,6 +41,8 @@ exports.login = asyncHandler(async (req, res, next) => {
     });
     res.status(200).json({ data: user, token });
 });
+
+// @desc   make sure the user is logged in
 
 exports.protect = asyncHandler(async (req, res, next) => {
     let token;
@@ -75,6 +81,8 @@ exports.protect = asyncHandler(async (req, res, next) => {
     next();
 });
 // user permistions
+// @desc    Authorization (User Permissions)
+// ["admin"]
 exports.allowedTo = (...roles) =>
     asyncHandler(async (req, res, next) => {
         if (!roles.includes(res.user.role)) {
@@ -84,7 +92,9 @@ exports.allowedTo = (...roles) =>
     });
 
 // forget password
-
+// @desc    Forgot password
+// @route   POST /api/auth/forgotPassword
+// @access  Public
 exports.forgetPassword = asyncHandler(async (req, res, next) => {
     //verify user email
     const user = await User.findOne({ email: req.body.email });
@@ -113,11 +123,47 @@ exports.forgetPassword = asyncHandler(async (req, res, next) => {
             message: messageContent,
         });
     } catch (error) {
-        user.passwordResetCode = 'undfiend';
-        user.passwordResetCodeExpirse = 'undfiend';
-        user.passwordResetCodeVerified = 'undfiend';
+        user.passwordResetCode = undefined;
+        user.passwordResetCodeExpirse = undefined;
+        user.passwordResetCodeVerified = undefined;
         await user.save();
-        return next(new ApiError('there are an error in sending email',500))
+        return next(new ApiError('there are an error in sending email', 500))
     }
     res.status(200).json({ status: 'success', message: 'reset code send to email' })
+});
+// verifying reset code
+// @desc    Verify password reset code
+// @route   POST /api/auth/verifyResetCode
+// @access  Public
+exports.verifyResetCode = asyncHandler(async (req, res, next) => {
+    const hashedResetCode = crypto
+        .createHash("sha256")
+        .update(req.body.resetCode)
+        .digest("hex");
+    const user = await User.findOne({ passwordResetCode: hashedResetCode, passwordResetCodeExpirse: { $gt: Date.now() } });
+    if (!user) {
+        return next(new ApiError('invaild password reset code'));
+    }
+    user.passwordResetCodeVerified = true;
+    await user.save();
+    res.status(200).json({ status: 'success' })
+});
+// @desc    Reset password
+// @route   POST /api/auth/resetPassword
+// @access  Public
+exports.resetPassword = asyncHandler(async (req, res, next) => {
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) {
+        return next(new ApiError('please enter vaild email ', 404))
+    }
+    if (!user.passwordResetCodeVerified) {
+        return next(new ApiError('code is not verified ', 400))
+    }
+    user.password = req.body.password;
+    user.passwordResetCode = undefined;
+    user.passwordResetCodeExpirse = undefined;
+    user.passwordResetCodeVerified = undefined;
+    await user.save();
+    const token = jwt.sign({ userId: user._id }, process.env.jwt_Key, { expiresIn: process.env.jwt_ExpireDate });
+    res.status(200).json({ status: 'success', message: 'password updated', token })
 });
