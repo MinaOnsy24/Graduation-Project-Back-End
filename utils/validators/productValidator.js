@@ -36,7 +36,7 @@ exports.createProductValidator = [
     .isLength({max: 10000})
     .withMessage('Product price is larger than 10'),
 
-  check('priceAfterDiscount')
+  check('discount')
     .optional()
     .isNumeric()
     .withMessage('Product price must be number')
@@ -48,13 +48,6 @@ exports.createProductValidator = [
     //   return true;
     // }),
   ,
-  
-    
-  check('images')
-    .optional()
-    .isArray()
-    .withMessage('images should be array of string'),
-
   check('category')
     .notEmpty()
     .withMessage('Product must belong to category')
