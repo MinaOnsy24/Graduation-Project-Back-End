@@ -1,11 +1,12 @@
 const slugify = require('slugify')
-const multer = require('multer')
+// const multer = require('multer')
 const sharp = require('sharp')
 const { v4: uuidv4 } = require('uuid')
 const asyncHandler = require('express-async-handler')
 const ApiError = require('../utils/apiError')
-const CategoryModel = require('../models/categoryModel')
+const ApiFeatures = require('../utils/apiFeatures')
 const { uploadSingleImage } = require('../middlewares/uploadImageMiddleware')
+const CategoryModel = require('../models/categoryModel')
 
 /// uload single image
 exports.uploadCategoryImage = uploadSingleImage("image")
@@ -25,11 +26,19 @@ exports.resizeImage = asyncHandler(async (req,res,next) =>{
 
 // get all category - router: GET /api/category - public
 exports.getCategories = asyncHandler(async (req,res) =>{
-  const page = req.query.page * 1 || 1
-  const limit = req.query.limit * 1 || 4
-  const skip = (page - 1) * limit
-  const categories = await CategoryModel.find({}).skip(skip).limit(limit) // 5
-  res.status(200).json({results: categories.length, data:categories})
+  // build query
+  const documentsCounts = await CategoryModel.countDocuments()
+  const apiFeatures = new ApiFeatures(CategoryModel.find(), req.query) 
+  .paginate(documentsCounts)
+  .filter()
+  .search()
+  .limitFields()
+  .sort()
+
+   // execute quere
+  const {mongooseQuery,paginationResult} = apiFeatures
+  const categories = await mongooseQuery
+  res.status(200).json({results: categories.length, paginationResult,data:categories})
 })
 
 // get single category - router: GET /api/category/:id - public
