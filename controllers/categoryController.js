@@ -11,65 +11,68 @@ const { uploadSingleImage } = require('../middlewares/uploadImageMiddleware')
 exports.uploadCategoryImage = uploadSingleImage("image")
 
 // image processing
-exports.resizeImage = asyncHandler(async (req,res,next) =>{
+exports.resizeImage = asyncHandler(async (req, res, next) => {
   const filename = `category-${uuidv4()}-${Date.now()}.jpeg`
+  if (req.file) {
     await sharp(req.file.buffer)
       // .resize(600, 600)
       .toFormat('jpeg')
-      .jpeg({quality: 95})
+      .jpeg({ quality: 95 })
       .toFile(`uploads/categories/${filename}`);
 
-      req.body.image = filename  // save image on DB
+    req.body.image = filename  // save image on DB
+  }
+
   next();
 })
 
 // get all category - router: GET /api/category - public
-exports.getCategories = asyncHandler(async (req,res) =>{
+exports.getCategories = asyncHandler(async (req, res) => {
   const page = req.query.page * 1 || 1
   const limit = req.query.limit * 1 || 4
   const skip = (page - 1) * limit
   const categories = await CategoryModel.find({}).skip(skip).limit(limit) // 5
-  res.status(200).json({results: categories.length, data:categories})
+  res.status(200).json({ results: categories.length, data: categories })
 })
 
 // get single category - router: GET /api/category/:id - public
-exports.getCategory = asyncHandler(async(req,res,next) =>{
+exports.getCategory = asyncHandler(async (req, res, next) => {
   const { id } = req.params
   const category = await CategoryModel.findById(id)
-  if (!category){
+  if (!category) {
     // res.status(404).json({message: `category is not found on ${id}`})
     return next(new ApiError(`category is not found on id: ${id}`, 404))
   }
-  res.status(200).json({data: category})
+  res.status(200).json({ data: category })
 })
 // create category - router: POST /api/category - private
-exports.createCategory = asyncHandler(async (req,res) => {
+exports.createCategory = asyncHandler(async (req, res) => {
   const name = req.body.name
   const image = req.body.image
-  const category = await CategoryModel.create({name, slug: slugify(name),image})
-  res.status(201).json({data: category})
+  const category = await CategoryModel.create({ name, slug: slugify(name), image })
+  res.status(201).json({ data: category })
 })
 
 // update category - router: PUT /api/category/:id - private
-exports.updateCategory = asyncHandler(async(req,res,next) => {
+exports.updateCategory = asyncHandler(async (req, res, next) => {
   const { id } = req.params
   const { name } = req.body
   const category = await CategoryModel.findByIdAndUpdate(
-    {_id:id},
-    {name, slug: slugify(name)},
-    {new:true})
-  if (!category){
+    { _id: id },
+    { name, slug: slugify(name) },
+    { new: true })
+  if (!category) {
     return next(new ApiError(`category is not found on id: ${id}`, 404))
   }
-  res.status(200).json({data: category})
+  res.status(200).json({ data: category })
 })
 
 // delete category - router: DELETE /api/category/:id - private
-exports.deleteCategory = asyncHandler(async(req,res,next) => {
+exports.deleteCategory = asyncHandler(async (req, res, next) => {
   const { id } = req.params
   const category = await CategoryModel.findByIdAndDelete(id)
-  if (!category){
+  if (!category) {
     return next(new ApiError(`category is not found on id: ${id}`, 404))
   }
-  res.status(204).json({message:"category is removed"})
+  res.status(204).json({ message: "category is removed" })
 })

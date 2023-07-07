@@ -16,7 +16,7 @@ exports.createCategoryValidator = [
       .withMessage('Category name is shorter than 3')
       .isLength({max: 30})
       .withMessage('Category name is lager than 30'),
-
+      check("image").optional(),
     validatorMiddeleware
 ];
 

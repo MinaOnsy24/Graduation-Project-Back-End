@@ -1,11 +1,11 @@
-const express = require('express');
+const express = require("express");
 const {
     getUserValidator,
     updateUserValidator,
     deleteUserValidator,
     createUserValidator,
-    changePasswordValidator
-} = require('../utils/validators/user2Validator')
+    changePasswordValidator,
+} = require("../utils/validators/user2Validator");
 
 const {
     getUsers,
@@ -16,19 +16,45 @@ const {
     uploadUserImage,
     resizeImage,
     changePassword,
-    
-} = require('../controllers/userController2');
+} = require("../controllers/userController2");
 
 const router = express.Router();
-router.put('/changePassword/:id',changePasswordValidator,changePassword);
+const AuthController = require("../controllers/authUserController");
+
+router.put("/changePassword/:id", changePasswordValidator, changePassword);
 
 router
-    .route('/')
-    .get(getUsers).post(uploadUserImage,resizeImage,createUserValidator,createUser)
+    .route("/")
+    .get(AuthController.protect, AuthController.allowedTo("admin"), getUsers)
+    .post(
+        AuthController.protect,
+        AuthController.allowedTo("admin"),
+        uploadUserImage,
+        resizeImage,
+        createUserValidator,
+        createUser
+    );
 router
-    .route('/:id')
-    .get( getUserValidator,getUser)
-    .put(uploadUserImage, resizeImage,updateUserValidator ,updateUser)
-    .delete(deleteUserValidator,deleteUser);
+    .route("/:id")
+    .get(
+        AuthController.protect,
+        AuthController.allowedTo("admin"),
+        getUserValidator,
+        getUser
+    )
+    .put(
+        AuthController.protect,
+        AuthController.allowedTo("admin"),
+        uploadUserImage,
+        resizeImage,
+        updateUserValidator,
+        updateUser
+    )
+    .delete(
+        AuthController.protect,
+        AuthController.allowedTo("admin"),
+        deleteUserValidator,
+        deleteUser
+    );
 
 module.exports = router;

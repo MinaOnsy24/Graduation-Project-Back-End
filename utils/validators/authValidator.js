@@ -62,5 +62,14 @@ check("password")
     validatorMiddleware
 ]
 
+exports.forgetPasswordValidator=[
+    check("email")
+    .notEmpty()
+    .withMessage("email is required")
+    .isEmail()
+    .withMessage("invaild email"),
+    validatorMiddleware
+]
+
 
 
