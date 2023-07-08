@@ -16,10 +16,12 @@ const {
     uploadUserImage,
     resizeImage,
     changePassword,
+    getMyData
 } = require("../controllers/userController2");
 
 const router = express.Router();
 const AuthController = require("../controllers/authUserController");
+router.route('/getMyData').get(AuthController.protect,getMyData,getUser)
 
 router.put("/changePassword/:id", changePasswordValidator, changePassword);
 
