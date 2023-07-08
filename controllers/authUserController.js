@@ -77,7 +77,7 @@ exports.protect = asyncHandler(async (req, res, next) => {
             );
         }
     }
-    res.user = currentUser;
+    req.user = currentUser;
     next();
 });
 // user permistions

@@ -3,10 +3,12 @@ const { v4: uuidv4 } = require("uuid");
 const sharp = require("sharp");
 const ApiError = require("../utils/apiError");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+
 
 const factory = require("./handlersFactory");
 const { uploadSingleImage } = require("../middlewares/uploadImageMiddleware");
-const user = require("../models/userModel2");
+const User = require("../models/userModel2");
 
 // Upload single image
 exports.uploadUserImage = uploadSingleImage("profileImage");
@@ -31,23 +33,23 @@ exports.resizeImage = asyncHandler(async (req, res, next) => {
 // @desc    Get list of users
 // @route   GET /api/users
 // @access  private
-exports.getUsers = factory.getAll(user);
+exports.getUsers = factory.getAll(User);
 
 // @desc    Get specific user by id
 // @route   GET /api/users:id
 // @access  private
-exports.getUser = factory.getOne(user);
+exports.getUser = factory.getOne(User);
 
 // @desc    Create user
 // @route   POST  /api/users/:id
 // @access  Private
-exports.createUser = factory.createOne(user);
+exports.createUser = factory.createOne(User);
 
 // @desc    Update specific user
 // @route   PUT /api/users/:id
 // @access  Private
 exports.updateUser = asyncHandler(async (req, res, next) => {
-    const document = await user.findByIdAndUpdate(
+    const document = await User.findByIdAndUpdate(
         req.params.id,
         {
             name: req.body.name,
@@ -69,7 +71,7 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
 });
 
 exports.changePassword = asyncHandler(async (req, res, next) => {
-    const document= await user.findByIdAndUpdate(req.params.id,
+    const document= await User.findByIdAndUpdate(req.params.id,
     {
         password: await bcrypt.hash(req.body.password,12),
         passwordChangedAt: Date.now() 
@@ -87,7 +89,7 @@ exports.changePassword = asyncHandler(async (req, res, next) => {
 // @desc    Delete specific user
 // @route   DELETE /api/users/:id
 // @access  Private
-exports.deleteUser = factory.deleteOne(user);
+exports.deleteUser = factory.deleteOne(User);
         // (User):
 
 // @desc    Get my data
@@ -95,16 +97,18 @@ exports.deleteUser = factory.deleteOne(user);
 // @access  private/protected
 
 exports.getMyData=asyncHandler(async (req, res, next) =>{
-    req.params.id=req.user._id;
+    req.params.id=req.user._id
     next()
 })
+
+
 
 // @desc    update my data password
 // @route   PUT /api/users/updateMePassword
 // @access  private/protected
 exports.updateMePassword=asyncHandler(async (req,res,next) =>{
     // update user password based user payload
-    const user= await user.findByIdAndUpdate(req.user._id,
+    const user= await User.findByIdAndUpdate(req.user._id,
         {
             password: await bcrypt.hash(req.body.password,12),
             passwordChangedAt: Date.now() 
