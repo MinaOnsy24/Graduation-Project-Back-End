@@ -6,6 +6,8 @@ require('dotenv').config()
 const ApiError = require('./utils/apiError')
 const globalError = require('./middlewares/errorMideleware')
 // const userRoute = require('./routes/userRoute')
+const cors=require("cors");
+const helmet=require("helmet");
 
 // connec to DB
 databaseConnection()
@@ -19,6 +21,11 @@ app.use(express.static(path.join(__dirname,'uploads')))
 //   app.use(morgan('dev'))
 //   console.log(`mode: ${process.env.NODE_ENV}`)
 // }
+app.use(helmet());
+
+app.use(cors({
+  origin:"http://localhost:3000"
+}))
 
 //routes
 app.use('/api/category',require('./routes/categoryRoute'))
