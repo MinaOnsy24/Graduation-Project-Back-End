@@ -88,6 +88,7 @@ exports.changePassword = asyncHandler(async (req, res, next) => {
 // @route   DELETE /api/users/:id
 // @access  Private
 exports.deleteUser = factory.deleteOne(user);
+        // (User):
 
 // @desc    Get my data
 // @route   GET /api/users/getMe
@@ -96,4 +97,46 @@ exports.deleteUser = factory.deleteOne(user);
 exports.getMyData=asyncHandler(async (req, res, next) =>{
     req.params.id=req.user._id;
     next()
+})
+
+// @desc    update my data password
+// @route   PUT /api/users/updateMePassword
+// @access  private/protected
+exports.updateMePassword=asyncHandler(async (req,res,next) =>{
+    // update user password based user payload
+    const user= await user.findByIdAndUpdate(req.user._id,
+        {
+            password: await bcrypt.hash(req.body.password,12),
+            passwordChangedAt: Date.now() 
+        },
+        {
+            new:true
+        })
+    // create token
+    const token = jwt.sign({ userId: user._id }, process.env.jwt_Key, { expiresIn: process.env.jwt_ExpireDate });
+    res.status(200).json({ data:user, token })
+})
+
+// @desc    update my data  without(password , role)
+// @route   PUT /api/users/updateMedata
+// @access  private/protected
+exports.updateMeData=asyncHandler(async (req,res,next) =>{
+    // update user data based user payload
+    const updateUserData = await UserActivation.findByIdAndUpdate(req.user._id,
+    {
+        name: req.body.name,
+        email: req.body.email,
+        phone: req.body,phone
+    },
+    {new: true});
+    res.status(200).json({ data:updateUserData, token })
+})
+
+// @desc    delete my data  
+// @route   DELETE /api/users/deleteMedata
+// @access  private/protected
+exports.deleteMeData=asyncHandler(async (req,res,next) =>{
+    // delete user data based user payload
+    await User.findByIdAndUpdate( req.user._id ,{ active:false });
+    res.status(204).json({ status:"Done" })
 })

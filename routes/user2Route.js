@@ -5,6 +5,7 @@ const {
     deleteUserValidator,
     createUserValidator,
     changePasswordValidator,
+    updateMyDataValidator
 } = require("../utils/validators/user2Validator");
 
 const {
@@ -16,15 +17,20 @@ const {
     uploadUserImage,
     resizeImage,
     changePassword,
-    getMyData
+    getMyData,
+    updateMePassword,
+    updateMeData,
+    deleteMeData
 } = require("../controllers/userController2");
-
 const router = express.Router();
-const AuthController = require("../controllers/authUserController");
-router.route('/getMyData').get(AuthController.protect,getMyData,getUser)
-
 router.put("/changePassword/:id", changePasswordValidator, changePassword);
 
+const AuthController = require("../controllers/authUserController");
+router.get('/getMyData',AuthController.protect,getMyData,getUser)
+router.put('/updateMyPassword',AuthController.protect,updateMePassword)
+router.put('/updateMyData',updateMyDataValidator,AuthController.protect,updateMeData)
+router.delete('/deleteMyData',deleteMeData)
+// admin
 router
     .route("/")
     .get(AuthController.protect, AuthController.allowedTo("admin"), getUsers)

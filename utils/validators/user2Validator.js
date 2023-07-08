@@ -117,3 +117,31 @@ exports.deleteUserValidator = [
     check("id").isMongoId().withMessage("Invalid Brand id format"),
     validatorMiddleware,
 ];
+      
+      // (user):
+
+exports.updateMyDataValidator = [
+    body("name")
+        .optional()
+        .custom((val, { req }) => {
+            req.body.slug = slugify(val);
+            return true;
+        }),
+    check("email")
+        .notEmpty()
+        .withMessage("email is required")
+        .isEmail()
+        .withMessage("invaild email")
+        .custom((val) =>
+            user.findOne({ email: val }).then((user) => {
+                if (user) {
+                    return Promise.reject(new Error("email is already exit"));
+                }
+            })
+        ),
+    check("phone")
+        .optional()
+        .isMobilePhone(["ar-EG", "ar-SA", "ar-AE", "ar-IQ"])
+        .withMessage("invaild phone number"),
+    validatorMiddleware,
+];

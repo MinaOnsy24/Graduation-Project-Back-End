@@ -152,10 +152,12 @@ exports.verifyResetCode = asyncHandler(async (req, res, next) => {
 // @route   POST /api/auth/resetPassword
 // @access  Public
 exports.resetPassword = asyncHandler(async (req, res, next) => {
+    // get user based on email
     const user = await User.findOne({ email: req.body.email });
     if (!user) {
         return next(new ApiError('please enter vaild email ', 404))
     }
+    // check if reset code verified
     if (!user.passwordResetCodeVerified) {
         return next(new ApiError('code is not verified ', 400))
     }
@@ -164,6 +166,7 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
     user.passwordResetCodeExpirse = undefined;
     user.passwordResetCodeVerified = undefined;
     await user.save();
+    // if is done => create token:
     const token = jwt.sign({ userId: user._id }, process.env.jwt_Key, { expiresIn: process.env.jwt_ExpireDate });
     res.status(200).json({ status: 'success', message: 'password updated', token })
 });
