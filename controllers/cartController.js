@@ -23,7 +23,7 @@ exports.addProductToCart = asyncHandler(async(req,res,next) =>{
     // create cart for logged user
     cart = await cartModel.create({
       user: req.user._id,
-      cartItems: [{product:productId,price:product.price}],
+      cartItems: [{product:productId}],//,price:product.price
     })
   }else{
     // if product exist in cart, update product quentity
@@ -55,7 +55,7 @@ exports.addProductToCart = asyncHandler(async(req,res,next) =>{
 //////////////////////////////////////////////////////
 // Get logged user cart - GET /api/cart - Private User
 exports.getLoggedUserCart = asyncHandler(async(req,res,next) =>{
-  const cart = await cartModel.findOne({user: req.user._id})
+  const cart = await cartModel.findOne({user: req.user._id}).populate({path:'cartItems.product',populate:{path:'category'}}) //,select:['title','price','category']
 
   if(!cart){
     return next(new ApiError(`there is no cart to user id: ${req.user._id}`, 404))

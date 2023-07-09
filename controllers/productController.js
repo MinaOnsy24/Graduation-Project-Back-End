@@ -84,3 +84,9 @@ exports.deleteProduct = asyncHandler(async(req,res,next) => {
   }
   res.status(204).json({message:"product is removed"})
 })
+exports.getProductByCategory = asyncHandler(async(req,res)=>{
+  const products =await ProductModel.find({category:req.params.categoryId})
+  console.log(products)
+
+  res.status(200).json( { apiStatus:true , data : products , apiMessage : "There are the category products" } )
+})
