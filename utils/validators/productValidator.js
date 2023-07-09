@@ -16,17 +16,14 @@ exports.createProductValidator = [
     .isLength({max: 2000})
     .withMessage('Product describtion is larger than 2000'),
     
-  check('quantity')
+  check('maxQuantity')
     .notEmpty()
     .withMessage('Product quantity required')
     .isNumeric()
     .withMessage('Product quantity must be numeric')
     .optional(),
 
-  check('sold')
-    .isNumeric()
-    .withMessage('Product quantity must be numeric')
-    .optional(),
+  
 
   check('price')
     .notEmpty()
