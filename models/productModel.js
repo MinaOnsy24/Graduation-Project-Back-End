@@ -18,15 +18,11 @@ const ProductSchema = new mongoose.Schema({
     required: true,
     maxlength: 2000
   },
-  quantity: {
+  maxQuantity: {
     type: Number,
-    require:true,
-    default: 0
+    
   },
-  sold: {
-    type: Number,
-    default: 0,
-  },
+
   price: {
     type: Number,
     required: true,
