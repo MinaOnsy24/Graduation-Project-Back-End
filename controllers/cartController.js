@@ -23,7 +23,7 @@ exports.addProductToCart = asyncHandler(async(req,res,next) =>{
     // create cart for logged user
     cart = await cartModel.create({
       user: req.user._id,
-      cartItems: [{product: productId, price: product.price}],
+      cartItems: [{product:productId,price:product.price}],
     })
   }else{
     // if product exist in cart, update product quentity
@@ -41,7 +41,7 @@ exports.addProductToCart = asyncHandler(async(req,res,next) =>{
   }
 
   ////// calculate total price
-  calcTotalCartPrice()
+  calcTotalCartPrice(cart)
   await cart.save();
 
   res.status(200).json({
@@ -55,10 +55,10 @@ exports.addProductToCart = asyncHandler(async(req,res,next) =>{
 //////////////////////////////////////////////////////
 // Get logged user cart - GET /api/cart - Private User
 exports.getLoggedUserCart = asyncHandler(async(req,res,next) =>{
-  const cart = await cartModel.findOne({user: req.body._id})
+  const cart = await cartModel.findOne({user: req.user._id})
 
   if(!cart){
-    return next(new ApiError(`there is no cart to user id: ${req.body._id}`, 404))
+    return next(new ApiError(`there is no cart to user id: ${req.user._id}`, 404))
   }
   res.status(200).json({
     status: 'success',
@@ -70,7 +70,7 @@ exports.getLoggedUserCart = asyncHandler(async(req,res,next) =>{
 // Remove specific cart item - Delete /api/cart/:itemId - Private User
 exports.removeSpecificCartItem = asyncHandler(async(req,res,next) =>{
   const cart = await cartModel.findOneAndUpdate(
-    {user: req.body._id}
+    {user: req.user._id}
     ,{
       $pull: {cartItems:{_id: req.params.itemId}}
     },
@@ -89,7 +89,7 @@ exports.removeSpecificCartItem = asyncHandler(async(req,res,next) =>{
 //////////////////////////////////////////////////////
 // Remove delete cart item - Delete /api/cart/:itemId - Private User
 exports.clearCart = asyncHandler(async(req,res,next) =>{
-  await cartModel.findOneAndDelete({user: req.body._id})
+  await cartModel.findOneAndDelete({user: req.user._id})
   res.status(204).send()
 })
 //////////////////////////////////////////////////////

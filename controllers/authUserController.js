@@ -85,7 +85,8 @@ exports.protect = asyncHandler(async (req, res, next) => {
 // ["admin"]
 exports.allowedTo = (...roles) =>
     asyncHandler(async (req, res, next) => {
-        if (!roles.includes(res.user.role)) {
+        if (!roles.includes(req.user.role))
+        {
             next(new ApiError("you are noy allowed to make this action", 403));
         }
         next();
