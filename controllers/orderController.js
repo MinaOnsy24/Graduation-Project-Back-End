@@ -3,7 +3,7 @@ const ApiError = require("../utils/apiError");
 const factory = require("./handlersFactory");
 const Order = require('../models/ordersModel');
 const cartModel = require('../models/cartModel')
-const ProductModel = require('../models/productModel')
+const ProductModel = require('../models/productModel');
 
 
 
@@ -38,8 +38,22 @@ exports.cashOrder = asyncHandler(async (req, res, next) => {
             },
         }));
         await ProductModel.bulkWrite(bulkOption, {});
-    // 5) Clear cart depend on cartId
+        // 5) Clear cart depend on cartId
         await cartModel.findByIdAndDelete(req.params.cartId);
     }
     res.status(201).json({ status: 'success', data: order });
-    })
+})
+
+exports.filterOrderForLoggedUser = asyncHandler(async (req, res, next) => {
+    if (req.user.role === 'user') req.filterObj = { user: req.user._id };
+    next();
+});
+// @desc    Get all orders
+// @route   POST /api/orders
+// @access  Protected/User-Admin-Manager
+exports.findAllOrders = factory.getAll(Order);
+
+// @desc    Get spcefic orders
+// @route   POST /api/orders
+// @access  Protected/User-Admin-Manager
+exports.speceficOrder=factory.getOne(Order)

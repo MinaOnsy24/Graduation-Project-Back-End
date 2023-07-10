@@ -30,8 +30,7 @@ exports.addProductToCart = asyncHandler(async(req,res,next) =>{
     cart = cartModel.findById(cart._id)
   }else{
     
-    console.log("add cart")
-    console.log(cart)
+  
 
     // if product exist in cart, update product quentity
     const productIndex = cart.cartItems.findIndex(
@@ -53,7 +52,6 @@ exports.addProductToCart = asyncHandler(async(req,res,next) =>{
     // cart.populated('cartItems.product')
   calcTotalCartPrice(cart)
   await cart.save();
-
   res.status(200).json({
     status: 'success',
     message: 'Product added to Cart',
