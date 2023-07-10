@@ -22,14 +22,14 @@ const ordersSchema = new mongoose.Schema(
             default: 0,
         },
         totalOrderPrice: { type: Number },
-        paymentMethodsType:{
-            type:String,
-            enum:['cash','paypal'],
-            default:'cash'
+        paymentMethodsType: {
+            type: String,
+            enum: ['cash', 'paypal'],
+            default: 'cash'
         },
-        isPaid:{
-            type:Boolean,
-            default:false
+        isPaid: {
+            type: Boolean,
+            default: false
         },
         shippingAddress: {
             details: String,
@@ -37,14 +37,23 @@ const ordersSchema = new mongoose.Schema(
             city: String,
             postalCode: String,
         },
-        paidAt:Date,
-        isDelivered:{
-            type:Boolean,
-            default:false
+        paidAt: Date,
+        isDelivered: {
+            type: Boolean,
+            default: false
         },
-        DeliveredAt:Date
+        DeliveredAt: Date
     },
     { timestamps: true }
 );
+
+ordersSchema.pre(/^find/, function (next) {
+    this.populate({ path: 'user', select: 'name email' }).populate({
+        path: 'cartItems.product',
+        select: 'title imageCover ',
+    });;
+    next();
+});
+
 
 module.exports = mongoose.model("orders", ordersSchema);

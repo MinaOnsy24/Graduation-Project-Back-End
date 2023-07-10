@@ -57,3 +57,30 @@ exports.findAllOrders = factory.getAll(Order);
 // @route   POST /api/orders
 // @access  Protected/User-Admin-Manager
 exports.speceficOrder=factory.getOne(Order)
+
+// @desc    update order status to paid
+// @route   Put /api/orders/:id for order
+// @access  Protected/Admin
+exports.updateOrderToPaid=asyncHandler(async (req,res,next)=>{
+    const order= await Order.findById(req.params.id);
+    if(!order){
+        return next(new ApiError('can not find order',404))
+    }
+    order.isPaid=true;
+    order.paidAt=Date.now()
+   const updatedOrder= await order.save();
+   res.status(200).json({status:'success',data:updatedOrder});
+})
+// @desc    update order status to delivered
+// @route   Put /api/orders/:id for order
+// @access  Protected/Admin
+exports.updateOrderToDelivered=asyncHandler(async (req,res,next)=>{
+    const order= await Order.findById(req.params.id);
+    if(!order){
+        return next(new ApiError('can not find order',404))
+    }
+    order.isDelivered=true;
+    order.DeliveredAt=Date.now()
+   const updatedOrder= await order.save();
+   res.status(200).json({status:'success',data:updatedOrder});
+})
