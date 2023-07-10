@@ -33,6 +33,7 @@ app.use('/api/products',require('./routes/productRoute'))
 app.use('/api/users', require('./routes/user2Route'))
 app.use('/api/auth', require('./routes/authRoute'))
 app.use('/api/cart', require('./routes/cartRoute'))
+app.use('/api/orders', require('./routes/orderRoute'))
 
 
 

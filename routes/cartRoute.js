@@ -11,7 +11,7 @@ const {
 const AuthController = require("../controllers/authUserController");
 
 const router = express.Router();
-router.use(AuthController.protect, AuthController.allowedTo("user"));
+router.use(AuthController.protect,) //AuthController.allowedTo("user"));
 
 router
   .route("/")
