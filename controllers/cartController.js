@@ -23,7 +23,7 @@ exports.addProductToCart = asyncHandler(async(req,res,next) =>{
     // create cart for logged user
     cart = await cartModel.create({
       user: req.user._id,
-      cartItems: [{product:productId}],//,price:product.price
+      cartItems: [{product:productId,price: product.price}],//,price:product.price
     })
   }else{
     // if product exist in cart, update product quentity
