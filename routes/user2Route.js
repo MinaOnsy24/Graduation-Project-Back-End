@@ -35,8 +35,8 @@ router
     .route("/")
     .get(AuthController.protect, AuthController.allowedTo("admin"), getUsers)
     .post(
-        AuthController.protect,
-        AuthController.allowedTo("admin"),
+        // AuthController.protect,
+        // AuthController.allowedTo("admin"),
         uploadUserImage,
         resizeImage,
         createUserValidator,
