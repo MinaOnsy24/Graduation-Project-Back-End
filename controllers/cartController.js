@@ -4,10 +4,12 @@ const ApiError = require('../utils/apiError')
 const ProductModel = require('../models/productModel')
 const cartModel = require('../models/cartModel')
 
-const calcTotalCartPrice = (cart) =>{
+const calcTotalCartPrice =async (cart) =>{
+  await cart.populate({path:'cartItems.product'})
   let totalPrice = 0
   cart.cartItems.forEach((item) => {
-    totalPrice += item.quantity * item.price
+    console.log(item.product)
+    totalPrice += item.quantity * item.product.price
   });
   cart.totalCartPrice = totalPrice
   return totalPrice
@@ -23,12 +25,17 @@ exports.addProductToCart = asyncHandler(async(req,res,next) =>{
     // create cart for logged user
     cart = await cartModel.create({
       user: req.user._id,
-      cartItems: [{product:productId,price:product.price}],//,price:product.price
+      cartItems: [{product:productId}],//,price:product.price
     })
+    cart = cartModel.findById(cart._id)
   }else{
+    
+    console.log("add cart")
+    console.log(cart)
+
     // if product exist in cart, update product quentity
     const productIndex = cart.cartItems.findIndex(
-      (item) => item.product.toString() === productId
+      (item) => item.product._id.toString() === productId
     );
     if(productIndex > -1){
       const cartItem = cart.cartItems[productIndex]
@@ -41,6 +48,9 @@ exports.addProductToCart = asyncHandler(async(req,res,next) =>{
   }
 
   ////// calculate total price
+    // cart.populate({path:'cartItems.product'})
+
+    // cart.populated('cartItems.product')
   calcTotalCartPrice(cart)
   await cart.save();
 
@@ -60,6 +70,9 @@ exports.getLoggedUserCart = asyncHandler(async(req,res,next) =>{
   if(!cart){
     return next(new ApiError(`there is no cart to user id: ${req.user._id}`, 404))
   }
+  // console.log("get cart")
+  console.log(cart)
+  calcTotalCartPrice(cart)
   res.status(200).json({
     status: 'success',
     numOfCartItem: cart.cartItems.length,
@@ -76,7 +89,8 @@ exports.removeSpecificCartItem = asyncHandler(async(req,res,next) =>{
     },
     {new: true}
     );
-
+    cart.populate('cartItems.product')
+    console.log(cart)
     calcTotalCartPrice(cart)
     await cart.save()
 
@@ -96,7 +110,7 @@ exports.clearCart = asyncHandler(async(req,res,next) =>{
 // Update specific cart item - PUT /api/cart/:itemId - Private User
 exports.updateCartItemQuantity = asyncHandler(async(req,res,next) =>{
   const {quantity} = req.body
-  const cart = await cartModel.findOne({user: req.user._id})
+  const cart = await cartModel.findOne({user: req.user._id}).populate('cartItems.product')
 
   if(!cart){
     return next(new ApiError(`there is no cart for user id: ${req.user._id}`,404))
@@ -111,6 +125,7 @@ exports.updateCartItemQuantity = asyncHandler(async(req,res,next) =>{
   }else{
     return next(new ApiError(`there is no cart for user id: ${req.params.itemId}`,404))
   }
+  console.log(cart)
   calcTotalCartPrice(cart)
 
   await cart.save()
