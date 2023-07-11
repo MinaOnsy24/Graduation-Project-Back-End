@@ -30,7 +30,8 @@ const ProductSchema = new mongoose.Schema({
     max: [10000]
   },    
   discount: {
-    type: Number
+    type: Number,
+    default : 0
   },
   imageCover:{
     type:String,

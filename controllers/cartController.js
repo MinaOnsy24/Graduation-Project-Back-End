@@ -9,7 +9,7 @@ const calcTotalCartPrice =async (cart) =>{
   let totalPrice = 0
   cart.cartItems.forEach((item) => {
     // console.log(item.product)
-    totalPrice += item.quantity * item.product.price
+    totalPrice += item.quantity * (item.product.price - item.product.discount)
   });
   // await cart.save()
   return totalPrice
@@ -66,7 +66,7 @@ exports.addProductToCart = asyncHandler(async(req,res,next) =>{
 //////////////////////////////////////////////////////
 // Get logged user cart - GET /api/cart - Private User
 exports.getLoggedUserCart = asyncHandler(async(req,res,next) =>{
-  const cart = await cartModel.findOne({user: req.user._id}).populate({path:'cartItems.product',populate:{path:'category'},select:['title','price','category']})
+  const cart = await cartModel.findOne({user: req.user._id}).populate({path:'cartItems.product',populate:{path:'category'}})//,select:['title','price','category']
 
   if(!cart){
     return next(new ApiError(`there is no cart to user id: ${req.user._id}`, 404))
