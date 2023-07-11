@@ -13,7 +13,7 @@ const reviewSchema = new mongoose.Schema({
     },
     user: {
         type: mongoose.Schema.ObjectId,
-        ref: 'User',
+        ref: 'user2',
         required: [true ,'Review Must bblong User']
     },
     product: {
@@ -22,5 +22,11 @@ const reviewSchema = new mongoose.Schema({
         required: [true ,'Review Must bblong Product']
     }
 },{ timestamps: true })
+
+reviewSchema.pre(/^find/, function (next) {
+    this.populate({ path: 'user', select: 'name' });
+    next();
+});
+
 
 module.exports = mongoose.model('Review', reviewSchema)
