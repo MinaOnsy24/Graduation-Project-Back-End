@@ -31,7 +31,7 @@ exports.addProductToCart = asyncHandler(async(req,res,next) =>{
   }else{
     
     console.log("add cart")
-    // console.log(cart)
+    console.log(cart)
 
     // if product exist in cart, update product quentity
     const productIndex = cart.cartItems.findIndex(
@@ -54,7 +54,6 @@ exports.addProductToCart = asyncHandler(async(req,res,next) =>{
   console.log(await calcTotalCartPrice(cart));
   cart.totalCartPrice =await calcTotalCartPrice(cart)
   await cart.save();
-
   res.status(200).json({
     status: 'success',
     message: 'Product added to Cart',
