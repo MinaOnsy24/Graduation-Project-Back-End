@@ -6,14 +6,12 @@ const {
     filterOrderForLoggedUser,
     updateOrderToPaid,
     updateOrderToDelivered,
-    checkoutSession 
 } = require("../controllers/orderController");
 
 const AuthController = require("../controllers/authUserController");
 const router = express.Router();
 router.use(AuthController.protect);
 
-router.get('/checkout/:cartId',AuthController.allowedTo('user'),checkoutSession)
 
 router.put('/:id/pay',AuthController.allowedTo('admin'),updateOrderToPaid)
 router.put('/:id/delivered',AuthController.allowedTo('admin'),updateOrderToDelivered)

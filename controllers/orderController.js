@@ -4,7 +4,6 @@ const factory = require("./handlersFactory");
 const Order = require('../models/ordersModel');
 const cartModel = require('../models/cartModel')
 const ProductModel = require('../models/productModel');
-const strip = require('stripe')(process.env.strip_Secret_key)
 
 
 
@@ -91,31 +90,4 @@ exports.updateOrderToDelivered = asyncHandler(async (req, res, next) => {
 // @route   get /api/orders/checkout/cartId
 // @access  Protected/user
 
-exports.checkoutSession = asyncHandler(async (req, res, next) => {
-    const shippingPrice = 0;
-    const cart = await cartModel.findById(req.params.cartId);
-    if (!cart) {
-        return next(new ApiError('no product in the cart'));
-    }
-    const cartTotalPrice = cart.totalCartPrice;
-    const totalOrderPrice = cartTotalPrice + shippingPrice
 
-    const session = await strip.checkout.sessions.create({
-        line_items: [
-            {
-                name: req.user.name,
-                amount: totalOrderPrice * 100,
-                currency: 'egp',
-                quantity: 1,
-            },
-        ],
-        mode: 'payment',
-        success_url: `${req.protocol}://${req.get('host')}/orders`,
-        cancel_url: `${req.protocol}://${req.get('host')}/cart`,
-        customer_email:req.user.email,
-        client_reference_id:req.params.cartId,
-        metadata:req.body.hippingAddress
-    });
-    res.status(200).json({status:'success',session})
-
-})
