@@ -1,4 +1,6 @@
+const stripe = require('stripe')(process.env.Stripe_Key)
 const asyncHandler = require("express-async-handler");
+
 const ApiError = require("../utils/apiError");
 const factory = require("./handlersFactory");
 const Order = require('../models/ordersModel');
@@ -91,3 +93,34 @@ exports.updateOrderToDelivered = asyncHandler(async (req, res, next) => {
 // @access  Protected/user
 
 
+exports.createStripeSession = asyncHandler(async (req, res, next) => {
+    const cart = await cartModel.findById(req.params.cartId).populate({
+        path: 'cartItems.product',
+        select: 'title imageCover describtion price ',
+    });;
+    if (!cart) {
+        return next(
+            new ApiError(`There is no such cart with id ${req.params.cartId}`, 404)
+        );
+    }
+    const totalPrice = cart.totalCartPrice
+
+    // const session = await stripe.checkout.sessions.create({
+    //     line_items: [{
+    //         price_data: {
+    //             currency: 'EGP',
+    //             unit_amount:totalPrice,
+    //             product_data: {
+    //                 name:cart.cartItems.product.title ,
+    //                 description:cart.cartItems.product,
+    //                 images:cart.cartItems.product,
+    //             },
+    //         },
+    //         quantity: 1,
+    //     }],
+    //     mode: 'payment',
+    //     success_url: 'https://example.com/success?session_id={CHECKOUT_SESSION_ID}',
+    //     cancel_url: 'https://example.com/cancel',
+    // });
+    res.status(200).json({status:'success',cart});
+})

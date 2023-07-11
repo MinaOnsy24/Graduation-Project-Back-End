@@ -50,7 +50,7 @@ const ordersSchema = new mongoose.Schema(
 ordersSchema.pre(/^find/, function (next) {
     this.populate({ path: 'user', select: 'name email' }).populate({
         path: 'cartItems.product',
-        select: 'title imageCover ',
+        select: 'title imageCover  ',
     });;
     next();
 });
