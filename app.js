@@ -8,24 +8,22 @@ const globalError = require('./middlewares/errorMideleware')
 // const userRoute = require('./routes/userRoute')
 const cors=require("cors");
 const helmet=require("helmet");
+const compression = require('compression')
+
 
 // connec to DB
 databaseConnection()
 // Init app
 const app = express()
+app.use(cors())
+app.options('*',cors())
+// compress all responses
+app.use(compression())
+app.use(helmet());
 
 // Middelware
 app.use(express.json())
 app.use(express.static(path.join(__dirname,'uploads')))
-// if( process.env.NODE_ENV === 'development'){
-//   app.use(morgan('dev'))
-//   console.log(`mode: ${process.env.NODE_ENV}`)
-// }
-app.use(helmet());
-
-app.use(cors({
-  origin:"http://localhost:3000"
-}))
 
 //routes
 app.use('/api/category',require('./routes/categoryRoute'))
@@ -35,9 +33,6 @@ app.use('/api/auth', require('./routes/authRoute'))
 app.use('/api/cart', require('./routes/cartRoute'))
 app.use('/api/orders', require('./routes/orderRoute'))
 app.use('/api/reviews', require('./routes/reviewRoute'))
-
-
-
 
 app.all('*' , (req,res,next) =>{
   next(new ApiError(`can not find this route: ${req.originalUrl}`,400))

@@ -130,5 +130,5 @@ exports.createStripeSession = asyncHandler(async (req, res, next) => {
         metadata: req.body.shippingAddress,
 
     });
-    res.status(200).json({ status: 'success', session, cart });
+    res.status(200).json({ status: 'success', session });
 })
