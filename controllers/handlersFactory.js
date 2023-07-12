@@ -6,12 +6,13 @@ exports.deleteOne = (Model) =>
     asyncHandler(async (req, res, next) => {
         const { id } = req.params;
         const document = await Model.findByIdAndDelete(id);
+        console.log(document)
 
         if (!document) {
             return next(new ApiError(`No document for this id ${id}`, 404));
         }
-        // Tigger remove event when update document
-        document.remove();
+        // Trigger remove event when delete document
+        // document.remove();
         res.status(204).send();
     });
 

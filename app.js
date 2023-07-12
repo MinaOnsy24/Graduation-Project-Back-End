@@ -33,6 +33,7 @@ app.use('/api/auth', require('./routes/authRoute'))
 app.use('/api/cart', require('./routes/cartRoute'))
 app.use('/api/orders', require('./routes/orderRoute'))
 app.use('/api/reviews', require('./routes/reviewRoute'))
+app.use('/api/wishlist', require('./routes/wishlistRoute'))
 
 app.all('*' , (req,res,next) =>{
   next(new ApiError(`can not find this route: ${req.originalUrl}`,400))
