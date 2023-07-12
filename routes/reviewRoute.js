@@ -11,8 +11,8 @@ router.route('/')
 .post(
     authUserController.protect,
     authUserController.allowedTo('user'),
-    setProductIdAndUserId,
     createReviewValidator,
+    setProductIdAndUserId,
     createReview
     )
 

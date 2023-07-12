@@ -83,7 +83,7 @@ exports.deleteReviewValidator = [
                     new Error(`Not Review With Id:${val}`)
                 )
             }
-            if(review.user.toString() !== req.user._id.toString()){
+            if(review.user._id.toString() !== req.user._id.toString()){
                 return Promise.reject(
                     new Error(`Not the real user who made the review`)
                 )

@@ -38,17 +38,8 @@ exports.createReview = factory.createOne(Review);
 // @desc    Update specific Review
 // @route   PUT /api/reviews/:id
 // @access  Private
-exports.updateReview = asyncHandler(async(req,res,next) => {
-  const { id } = req.params
-  const review = await Review.findByIdAndUpdate(
-    {_id:id},
-    req.body,
-    {new:true})
-  if (!review){
-    return next(new ApiError(`review is not found on id: ${id}`, 404))
-  }
-  res.status(200).json({data: review})
-})
+exports.updateReview = factory.updateOne(Review);
+
 
 // @desc    Delete specific review
 // @route   DELETE /api/reviews/:id
