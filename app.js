@@ -35,6 +35,7 @@ app.use('/api/auth', require('./routes/authRoute'))
 app.use('/api/cart', require('./routes/cartRoute'))
 app.use('/api/orders', require('./routes/orderRoute'))
 app.use('/api/reviews', require('./routes/reviewRoute'))
+app.use('/api/wishlist', require('./routes/wishlistRoute'))
 
 
 

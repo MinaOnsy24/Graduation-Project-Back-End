@@ -36,7 +36,14 @@ const userScehma2=new mongoose.Schema({
     active:{
         type:Boolean,
         default:true
-    }
+    },
+    // relashion chiled refrance one to many
+    wishlist:[
+        {
+        type: mongoose.Schema.ObjectId,
+        ref: 'Product'
+        }
+    ],
 },{timestamps:true});
 
 userScehma2.pre('save', async function (next){
