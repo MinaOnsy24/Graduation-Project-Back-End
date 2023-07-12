@@ -8,10 +8,8 @@ const calcTotalCartPrice =async (cart) =>{
   await cart.populate({path:'cartItems.product'})
   let totalPrice = 0
   cart.cartItems.forEach((item) => {
-    // console.log(item.product)
     totalPrice += item.quantity * (item.product.price - item.product.discount)
   });
-  // await cart.save()
   return totalPrice
 }
 
@@ -25,14 +23,11 @@ exports.addProductToCart = asyncHandler(async(req,res,next) =>{
     // create cart for logged user
     cart = await cartModel.create({
       user: req.user._id,
-      cartItems: [{product:productId}],//,price:product.price
+      cartItems: [{product:productId}]
     })
     cart = cartModel.findById(cart._id)
   }else{
     
-    console.log("add cart")
-    console.log(cart)
-
     // if product exist in cart, update product quentity
     const productIndex = cart.cartItems.findIndex(
       (item) => item.product._id.toString() === productId
@@ -47,10 +42,6 @@ exports.addProductToCart = asyncHandler(async(req,res,next) =>{
     }
   }
 
-  ////// calculate total price
-    // cart.populate({path:'cartItems.product'})
-
-    // cart.populated('cartItems.product')
   cart.totalCartPrice =await calcTotalCartPrice(cart)
   await cart.save();
   res.status(200).json({

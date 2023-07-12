@@ -105,22 +105,30 @@ exports.createStripeSession = asyncHandler(async (req, res, next) => {
     }
     const totalPrice = cart.totalCartPrice
 
-    // const session = await stripe.checkout.sessions.create({
-    //     line_items: [{
-    //         price_data: {
-    //             currency: 'EGP',
-    //             unit_amount:totalPrice,
-    //             product_data: {
-    //                 name:cart.cartItems.product.title ,
-    //                 description:cart.cartItems.product,
-    //                 images:cart.cartItems.product,
-    //             },
-    //         },
-    //         quantity: 1,
-    //     }],
-    //     mode: 'payment',
-    //     success_url: 'https://example.com/success?session_id={CHECKOUT_SESSION_ID}',
-    //     cancel_url: 'https://example.com/cancel',
-    // });
-    res.status(200).json({status:'success',cart});
+    const line_items = cart.cartItems.map((item) => {
+        return {
+            price_data: {
+                currency: 'egp',
+                unit_amount: totalPrice * 100,
+                product_data: {
+                    name: item.product.title,
+                    description: item.product.description,
+                    images: [item.product.imageCover]
+                },
+            },
+            quantity: 1,
+        };
+    });
+
+    const session = await stripe.checkout.sessions.create({
+        line_items: line_items,
+        mode: 'payment',
+        success_url: `${req.protocol}://${req.get('host')}/orders`,
+        cancel_url: `${req.protocol}://${req.get('host')}/cart`,
+        customer_email: req.user.email,
+        client_reference_id: req.params.cartId,
+        metadata: req.body.shippingAddress,
+
+    });
+    res.status(200).json({ status: 'success', session, cart });
 })
