@@ -17,7 +17,7 @@ databaseConnection()
 // Init app
 const app = express()
 app.use(cors())
-app.options('*',cors())
+// app.options('*',cors())
 // compress all responses
 app.use(compression())
 app.use(helmet());
