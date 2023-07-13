@@ -138,7 +138,7 @@ const createStripeOrder=async (session)=>{
     const shippingAddress=session.metadata;
     const orderPrice=session.amount_total/100;
     const cart =await cartModel.findById(cartId)
-    const user=await User.findOne({email:session.customer_email})
+    const user=await User.findOne({email:session.customer_details.email})
     //create order
 
     const order=await Order.create({
