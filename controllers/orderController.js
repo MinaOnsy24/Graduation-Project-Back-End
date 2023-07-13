@@ -132,3 +132,18 @@ exports.createStripeSession = asyncHandler(async (req, res, next) => {
     });
     res.status(200).json({ status: 'success', session });
 })
+
+exports.webhookCheckout = asyncHandler(async (req, res, next) => {
+    const sig = req.headers['stripe-signature'];
+
+    let event;
+
+    try {
+        event = stripe.webhooks.constructEvent(req.body, sig, process.env.end_point_Secret);
+    } catch (err) {
+        return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+    if (event.type=="checkout.session.completed"){
+        console.log('create order here......');
+    }
+})

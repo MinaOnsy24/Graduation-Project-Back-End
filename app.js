@@ -9,6 +9,7 @@ const globalError = require('./middlewares/errorMideleware')
 const cors=require("cors");
 const helmet=require("helmet");
 const compression = require('compression')
+const {webhookCheckout}=require('./controllers/orderController')
 
 
 // connec to DB
@@ -20,6 +21,9 @@ app.options('*',cors())
 // compress all responses
 app.use(compression())
 app.use(helmet());
+
+//checkout webhook
+app.post('/Webhooks-checkout', express.raw({type: 'application/json'}),webhookCheckout)
 
 // Middelware
 app.use(express.json())
