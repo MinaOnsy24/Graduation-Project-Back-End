@@ -51,7 +51,7 @@ exports.addProductToCart = asyncHandler(async(req,res,next) =>{
     // cart.populate({path:'cartItems.product'})
 
     // cart.populated('cartItems.product')
-  cart.totalCartPrice =await Math.ceil(calcTotalCartPrice(cart))
+  cart.totalCartPrice =Math.ceil(await calcTotalCartPrice(cart))
   await cart.save();
   res.status(200).json({
     status: 'success',
