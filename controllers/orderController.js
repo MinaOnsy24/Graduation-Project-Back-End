@@ -1,10 +1,11 @@
+const stripe = require('stripe')(process.env.Stripe_Key)
 const asyncHandler = require("express-async-handler");
+
 const ApiError = require("../utils/apiError");
 const factory = require("./handlersFactory");
 const Order = require('../models/ordersModel');
 const cartModel = require('../models/cartModel')
 const ProductModel = require('../models/productModel');
-const strip = require('stripe')(process.env.strip_Secret_key)
 
 
 
@@ -91,31 +92,43 @@ exports.updateOrderToDelivered = asyncHandler(async (req, res, next) => {
 // @route   get /api/orders/checkout/cartId
 // @access  Protected/user
 
-exports.checkoutSession = asyncHandler(async (req, res, next) => {
-    const shippingPrice = 0;
-    const cart = await cartModel.findById(req.params.cartId);
-    if (!cart) {
-        return next(new ApiError('no product in the cart'));
-    }
-    const cartTotalPrice = cart.totalCartPrice;
-    const totalOrderPrice = cartTotalPrice + shippingPrice
 
-    const session = await strip.checkout.sessions.create({
-        line_items: [
-            {
-                name: req.user.name,
-                amount: totalOrderPrice * 100,
+exports.createStripeSession = asyncHandler(async (req, res, next) => {
+    const cart = await cartModel.findById(req.params.cartId).populate({
+        path: 'cartItems.product',
+        select: 'title imageCover describtion price ',
+    });;
+    if (!cart) {
+        return next(
+            new ApiError(`There is no such cart with id ${req.params.cartId}`, 404)
+        );
+    }
+    const totalPrice = cart.totalCartPrice
+
+    const line_items = cart.cartItems.map((item) => {
+        return {
+            price_data: {
                 currency: 'egp',
-                quantity: 1,
+                unit_amount: totalPrice * 100,
+                product_data: {
+                    name: item.product.title,
+                    description: item.product.description,
+                    images: [item.product.imageCover]
+                },
             },
-        ],
+            quantity: 1,
+        };
+    });
+
+    const session = await stripe.checkout.sessions.create({
+        line_items: line_items,
         mode: 'payment',
         success_url: `${req.protocol}://${req.get('host')}/orders`,
         cancel_url: `${req.protocol}://${req.get('host')}/cart`,
-        customer_email:req.user.email,
-        client_reference_id:req.params.cartId,
-        metadata:req.body.hippingAddress
-    });
-    res.status(200).json({status:'success',session})
+        customer_email: req.user.email,
+        client_reference_id: req.params.cartId,
+        metadata: req.body.shippingAddress,
 
+    });
+    res.status(200).json({ status: 'success', session });
 })

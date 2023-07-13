@@ -1,27 +1,32 @@
 const express = require('express')
-const {getReviews, createReview, getReview, updateReview,deleteReview } = 
+const {getReviews, createReview, getReview, updateReview,deleteReview ,createFilterObject,setProductIdAndUserId} = 
 require('../controllers/reviewController')
 const authUserController = require('../controllers/authUserController')
-// const { createProductValidator,getProductValidator,updateProductValidator,deleteProductValidator } =
-// require('../utils/validators/productValidator')
+const { createReviewValidator,getReviewValidator,updateReviewValidator,deleteReviewValidator } =
+require('../utils/validators/reviewValidator')
 
-const router = express.Router()
+const router = express.Router({mergeParams:true})  // mergeParams used to any route send
 router.route('/')
-.get(getReviews)
+.get(createFilterObject,getReviews)
 .post(
     authUserController.protect,
     authUserController.allowedTo('user'),
-    createReview)
+    createReviewValidator,
+    setProductIdAndUserId,
+    createReview
+    )
 
 router.route("/:id")
-.get(getReview)
+.get(getReviewValidator,getReview)
 .put(
     authUserController.protect,
     authUserController.allowedTo('user'),
+    updateReviewValidator,
     updateReview)
 .delete(
     authUserController.protect,
     authUserController.allowedTo('user','admin'),
+    deleteReviewValidator,
     deleteReview)
 
 
