@@ -17,10 +17,10 @@ databaseConnection()
 // Init app
 const app = express()
 app.use(cors())
-app.options('*',cors())
+// app.options('*',cors())
 // compress all responses
 app.use(compression())
-app.use(helmet());
+app.use(helmet( { crossOriginResourcePolicy: false}));
 
 //checkout webhook
 app.post('/Webhooks-checkout', express.raw({type: 'application/json'}),webhookCheckout)
