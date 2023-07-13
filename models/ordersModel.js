@@ -24,7 +24,7 @@ const ordersSchema = new mongoose.Schema(
         totalOrderPrice: { type: Number },
         paymentMethodsType: {
             type: String,
-            enum: ['cash', 'paypal'],
+            enum: ['cash', 'card'],
             default: 'cash'
         },
         isPaid: {
