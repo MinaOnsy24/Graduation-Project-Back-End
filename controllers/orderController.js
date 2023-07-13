@@ -108,12 +108,12 @@ exports.createStripeSession = asyncHandler(async (req, res, next) => {
     const line_items = cart.cartItems.map((item) => {
         return {
             price_data: {
-                currency: 'egp',
-                unit_amount: totalPrice * 100,
+                currency: 'USD',
+                unit_amount: item.price,
                 product_data: {
                     name: item.product.title,
                     description: item.product.description,
-                    images: [item.product.imageCover]
+                    images: [item.product.imageCover],
                 },
             },
             quantity: 1,
@@ -132,6 +132,13 @@ exports.createStripeSession = asyncHandler(async (req, res, next) => {
     });
     res.status(200).json({ status: 'success', session });
 })
+const createStripeOrder=(session)=>{
+    const cartId=session.client_reference_id;
+    const shippingAddress=session.metadata;
+    const orderPrice=session.unit_amount;
+
+
+}
 
 exports.webhookCheckout = asyncHandler(async (req, res, next) => {
     const sig = req.headers['stripe-signature'];
@@ -145,5 +152,8 @@ exports.webhookCheckout = asyncHandler(async (req, res, next) => {
     }
     if (event.type=="checkout.session.completed"){
         console.log('create order here......');
+
+        //create order here 
+        createStripeOrder(event.data.object)
     }
 })
