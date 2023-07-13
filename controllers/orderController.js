@@ -6,7 +6,7 @@ const factory = require("./handlersFactory");
 const Order = require('../models/ordersModel');
 const cartModel = require('../models/cartModel')
 const ProductModel = require('../models/productModel');
-const User=require('../controllers/userController2')
+const User=require('../models/userModel2')
 
 
 
@@ -138,7 +138,7 @@ const createStripeOrder=async (session)=>{
     const shippingAddress=session.metadata;
     const orderPrice=session.amount_total/100;
     const cart =await cartModel.findById(cartId)
-    const user=await User.findOne({email:session.customer_details.email})
+    const user=await User.findOne({email:session.customer_email})
     //create order
 
     const order=await Order.create({
