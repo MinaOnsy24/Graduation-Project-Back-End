@@ -109,8 +109,8 @@ exports.createStripeSession = asyncHandler(async (req, res, next) => {
     const line_items = cart.cartItems.map((item) => {
         return {
             price_data: {
-                unit_amount:totalPrice*100,
                 currency: 'usd',
+                unit_amount:totalPrice*100,
                 product_data: {
                     name: item.product.title,
                     description: item.product.description,
