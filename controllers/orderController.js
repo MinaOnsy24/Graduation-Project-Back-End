@@ -110,7 +110,7 @@ exports.createStripeSession = asyncHandler(async (req, res, next) => {
         return {
             price_data: {
                 currency: 'usd',
-                unit_amount:totalPrice*100,
+                unit_amount:(item.product.price*item.quantity)*100,
                 product_data: {
                     name: item.product.title,
                     description: item.product.description,
