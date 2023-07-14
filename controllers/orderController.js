@@ -124,7 +124,7 @@ exports.createStripeSession = asyncHandler(async (req, res, next) => {
     const session = await stripe.checkout.sessions.create({
         line_items: line_items,
         mode: 'payment',
-        success_url: `${req.protocol}://${req.get('host')}/orders`,
+        success_url: `${req.protocol}://${req.get('host')}/checkout-successed`,
         cancel_url: `${req.protocol}://${req.get('host')}/cart`,
         customer_email: req.user.email,
         client_reference_id: req.params.cartId,
