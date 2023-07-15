@@ -45,6 +45,7 @@ exports.login = asyncHandler(async (req, res, next) => {
 // @desc   make sure the user is logged in
 
 exports.protect = asyncHandler(async (req, res, next) => {
+    console.log(req.header('Authorization'))
     let token;
     if (
         req.headers.authorization &&
@@ -52,6 +53,8 @@ exports.protect = asyncHandler(async (req, res, next) => {
     ) {
         token = req.headers.authorization.split(" ")[1];
     }
+
+    console.log({token})
     if (!token) {
         return next(new ApiError("you are not login please login"), 401);
     }

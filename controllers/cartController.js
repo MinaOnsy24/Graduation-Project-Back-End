@@ -4,14 +4,14 @@ const ApiError = require('../utils/apiError')
 const ProductModel = require('../models/productModel')
 const cartModel = require('../models/cartModel')
 
-const calcTotalCartPrice = async (cart) => {
-  await cart.populate({ path: 'cartItems.product' })
-  let totalPrice = 0
-  cart.cartItems.forEach((item) => {
-    totalPrice += item.quantity * (item.product.price - item.product.discount)
-  });
-  return totalPrice
-}
+// const calcTotalCartPrice = async (cart) => {
+//   await cart.populate({ path: 'cartItems.product' })
+//   let totalPrice = 0
+//   cart.cartItems.forEach((item) => {
+//     totalPrice += item.quantity * (item.product.price - item.product.discount)
+//   });
+//   return totalPrice
+// }
 
 // add product to cart - POST /api/carts - Private User
 exports.addProductToCart = asyncHandler(async (req, res, next) => {
@@ -25,7 +25,7 @@ exports.addProductToCart = asyncHandler(async (req, res, next) => {
       user: req.user._id,
       cartItems: [{ product: productId }]
     })
-    cart = cartModel.findById(cart._id)
+    cart = await cartModel.findById(cart._id)
   } else {
 
     // if product exist in cart, update product quentity
@@ -33,9 +33,7 @@ exports.addProductToCart = asyncHandler(async (req, res, next) => {
       (item) => item.product._id.toString() === productId
     );
     if (productIndex > -1) {
-      const cartItem = cart.cartItems[productIndex]
-      cartItem.quantity += 1;
-      cart.cartItems[productIndex] = cartItem
+      cart.cartItems[productIndex].quantity++
     } else {
       // product not exist on cart push product to cartItem array
       cart.cartItems.push({ product: productId, price: product.price })
@@ -46,7 +44,7 @@ exports.addProductToCart = asyncHandler(async (req, res, next) => {
   // cart.populate({path:'cartItems.product'})
 
   // cart.populated('cartItems.product')
-  cart.totalCartPrice = Math.ceil(await calcTotalCartPrice(cart))
+  // cart.totalCartPrice = Math.ceil(await calcTotalCartPrice(cart))
   await cart.save();
   res.status(200).json({
     status: 'success',
@@ -76,17 +74,23 @@ exports.getLoggedUserCart = asyncHandler(async (req, res, next) => {
 })
 //////////////////////////////////////////////////////
 // Remove specific cart item - Delete /api/cart/:itemId - Private User
-exports.removeSpecificCartItem = asyncHandler(async (req, res, next) => {
-  const cart = await cartModel.findOneAndUpdate(
-    { user: req.user._id }
-    , {
-      $pull: { cartItems: { _id: req.params.itemId } }
-    },
-    { new: true }
-  );
-  cart.populate('cartItems.product')
-  calcTotalCartPrice(cart)
-  cart.save()
+exports.updateCartItemQuantity = asyncHandler(async (req, res, next) => {
+  const cart = await cartModel.findOne({ user:req.user._id})
+const i=cart.cartItems.findIndex(item =>{
+  console.log(item.product.toString())
+  console.log(req.params.itemId)
+  console.log(item.product.toString()== req.params.itemId)
+  return item.product.toString()== req.params.itemId})
+  if(i>-1){
+    if(cart.cartItems[i].quantity>1){
+      cart.cartItems[i].quantity--
+    }else{
+      cart.cartItems.splice(i,1)
+    }
+  }else{
+    return next(new ApiError(`this product is not exist in your cart`, 404))
+  }
+  await cart.save()
 
   res.status(200).json({
     status: 'success',
@@ -102,25 +106,25 @@ exports.clearCart = asyncHandler(async (req, res, next) => {
 })
 //////////////////////////////////////////////////////
 // Update specific cart item - PUT /api/cart/:itemId - Private User
-exports.updateCartItemQuantity = asyncHandler(async (req, res, next) => {
-  const { quantity } = req.body
-  const cart = await cartModel.findOne({ user: req.user._id }).populate('cartItems.product')
+exports.removeSpecificCartItem = asyncHandler(async (req, res, next) => {
+  console.log(req.user._id)
+  const cart = await cartModel.findOne({ user: req.user._id })
 
   if (!cart) {
     return next(new ApiError(`there is no cart for user id: ${req.user._id}`, 404))
   }
+  // console.log(cart)
   const itemIndex = cart.cartItems.findIndex(
-    (item) => item._id.toString() === req.params.itemId
+    (item) => item.product.toString() === req.params.itemId
   );
   if (itemIndex > -1) {
-    const cartItem = cart.cartItems[itemIndex]
-    cartItem.quantity = quantity
-    cart.cartItems[itemIndex] = cartItem
+    cart.cartItems.splice(itemIndex ,1)
   } else {
-    return next(new ApiError(`there is no cart for user id: ${req.params.itemId}`, 404))
+    console.log('inside the else')
+    return next(new ApiError(`this product is not exist in your cart`, 404))
   }
   console.log(cart)
-  calcTotalCartPrice(cart)
+  // calcTotalCartPrice(cart)
 
   await cart.save()
   res.status(200).json({
