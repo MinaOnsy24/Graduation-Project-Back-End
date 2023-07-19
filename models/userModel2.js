@@ -30,7 +30,7 @@ const userScehma2=new mongoose.Schema({
     passwordResetCodeVerified:Boolean,
     role:{
         type:String,
-        enum:['admin','user'],
+        enum:['admin','user','seller'],
         default:'user'
     },
     active:{

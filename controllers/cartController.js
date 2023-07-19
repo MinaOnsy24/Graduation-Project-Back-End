@@ -62,9 +62,7 @@ exports.getLoggedUserCart = asyncHandler(async (req, res, next) => {
   if (!cart) {
     return next(new ApiError(`there is no cart to user id: ${req.user._id}`, 404))
   }
-  console.log("get cart")
-  // calcTotalCartPrice(cart)
-  console.log(cart)
+
 
   res.status(200).json({
     status: 'success',

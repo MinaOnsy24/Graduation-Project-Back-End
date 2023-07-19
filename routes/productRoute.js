@@ -3,6 +3,8 @@ const { getProducts,getProduct,createProduct,updateProduct,deleteProduct,uploadP
 require('../controllers/productController')
 const { createProductValidator,getProductValidator,updateProductValidator,deleteProductValidator } =
 require('../utils/validators/productValidator')
+const AuthController = require("../controllers/authUserController");
+
 
 const reviewRoute = require('./reviewRoute')
 
@@ -16,13 +18,12 @@ router.use('/:productId/reviews' , reviewRoute)
 
 router.route('/')
 .get(getProducts)
-.post(uploadProductImage,resizeImage,createProductValidator,createProduct)
+.post(AuthController.protect,AuthController.allowedTo('seller'),uploadProductImage,resizeImage,createProductValidator,createProduct)
 
 router.route("/:id")
 .get( getProductValidator,getProduct)
-.put(uploadProductImage,resizeImage,updateProductValidator,updateProduct)
-.delete(deleteProductValidator,deleteProduct)
-
+.put(AuthController.protect,AuthController.allowedTo('seller'),uploadProductImage,resizeImage,updateProductValidator,updateProduct)
+.delete(AuthController.protect,AuthController.allowedTo('seller','admin'),deleteProductValidator,deleteProduct)
 router.get("/category/:categoryId",getProductByCategory)
 
 module.exports = router
